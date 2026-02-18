@@ -1,6 +1,6 @@
 # NoteFleex
 
-NoteFleex is a markdown-first notes app built with React + Ant Design.
+notefleexis a markdown-first notes app built with React + Ant Design.
 It stores notes in browser local storage and now uses a modern Vite toolchain.
 
 ## What was upgraded
