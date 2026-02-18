@@ -168,7 +168,7 @@ function App() {
           <Space direction="vertical" size={16} style={{ width: "100%" }}>
             <div className="sider-header">
               <Typography.Title level={3} style={{ margin: 0 }}>
-                NoteFleex
+                notefleex
               </Typography.Title>
               <Button type="primary" icon={<PlusOutlined />} onClick={addNote}>
                 New note
