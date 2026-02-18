@@ -1,0 +1,107 @@
+.app-layout {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+}
+
+.app-sider {
+  border-right: 1px solid #e5e7eb;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.sider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.notes-empty {
+  margin-top: 8px;
+}
+
+.notes-list .ant-list-item {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.notes-list .ant-list-item:hover {
+  background: #f8fafc;
+}
+
+.note-list-item.active {
+  border-color: #0f766e;
+  background: #ecfdf5;
+}
+
+.app-content {
+  padding: 20px;
+}
+
+.editor-card,
+.preview-section {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.preview-section {
+  padding: 20px;
+}
+
+.markdown-output {
+  line-height: 1.65;
+  font-size: 15px;
+}
+
+.markdown-output h1,
+.markdown-output h2,
+.markdown-output h3,
+.markdown-output h4 {
+  margin-top: 1.25em;
+  margin-bottom: 0.6em;
+}
+
+.markdown-output p,
+.markdown-output ul,
+.markdown-output ol,
+.markdown-output pre {
+  margin-bottom: 0.85em;
+}
+
+.markdown-output pre {
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.markdown-output code {
+  background: #e2e8f0;
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
+.markdown-output blockquote {
+  margin: 0;
+  padding-left: 14px;
+  border-left: 4px solid #0f766e;
+  color: #475569;
+}
+
+@media (max-width: 992px) {
+  .app-sider {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+
+  .app-content {
+    padding: 16px;
+  }
+}
