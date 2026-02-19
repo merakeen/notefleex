@@ -18,6 +18,8 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   EyeOutlined,
+  GlobalOutlined,
+  GithubOutlined,
   InboxOutlined,
   MoonFilled,
   PlusOutlined,
@@ -634,28 +636,83 @@ function App() {
         </section>
 
         <footer className="app-footer">
-          <Typography.Text className="app-footer-copy">
-            © {new Date().getFullYear()}{" "}
-            <a
-              href="https://github.com/ikramagix"
-              target="_blank"
-              rel="noreferrer"
-            >
-              ikramagix
-            </a>{" "}
-            from{" "}
-            <a href="https://merakeen.com" target="_blank" rel="noreferrer">
-              merakeen 𖦹 studio
-            </a>
-          </Typography.Text>
-          <Space wrap size={16} className="app-footer-links">
-            <a href="https://github.com/ikramagix" target="_blank" rel="noreferrer">
-              ikramagix github
-            </a>
-            <a href="https://merakeen.com" target="_blank" rel="noreferrer">
-              merakeen.com
-            </a>
-          </Space>
+          <div className="app-footer-main">
+            <div className="app-footer-brand">
+              <p className="footer-wordmark">merakeen</p>
+              <p className="footer-credit">
+                crafted by{" "}
+                <a href="https://github.com/ikramagix" target="_blank" rel="noreferrer">
+                  ikramagix
+                </a>
+              </p>
+
+              <Space size={12} className="app-footer-social">
+                <a
+                  className="footer-icon-link"
+                  href="https://github.com/ikramagix"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="ikramagix github"
+                >
+                  <GithubOutlined />
+                </a>
+                <a
+                  className="footer-icon-link"
+                  href="https://merakeen.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="merakeen.com"
+                >
+                  <GlobalOutlined />
+                </a>
+              </Space>
+            </div>
+
+            <div className="app-footer-columns">
+              <div className="footer-column">
+                <p className="footer-column-title">Company</p>
+                <p>Merakeen 𖦹 studio</p>
+                <p className="footer-muted">Creative direction and engineering.</p>
+              </div>
+              <div className="footer-column">
+                <p className="footer-column-title">Project</p>
+                <p>notefleex</p>
+                <p className="footer-muted">Private local-first note workspace.</p>
+              </div>
+              <div className="footer-column">
+                <p className="footer-column-title">Resources</p>
+                <a href="https://github.com/ikramagix" target="_blank" rel="noreferrer">
+                  ikramagix github
+                </a>
+                <a href="https://merakeen.com" target="_blank" rel="noreferrer">
+                  merakeen.com
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="app-footer-divider" />
+
+          <div className="app-footer-bottom">
+            <Typography.Text className="app-footer-copy">
+              © {new Date().getFullYear()}{" "}
+              <a href="https://github.com/ikramagix" target="_blank" rel="noreferrer">
+                ikramagix
+              </a>{" "}
+              from{" "}
+              <a href="https://merakeen.com" target="_blank" rel="noreferrer">
+                merakeen 𖦹 studio
+              </a>
+            </Typography.Text>
+            <Space wrap size={22} className="app-footer-links">
+              <a href="https://github.com/ikramagix" target="_blank" rel="noreferrer">
+                ikramagix github
+              </a>
+              <a href="https://merakeen.com" target="_blank" rel="noreferrer">
+                merakeen.com
+              </a>
+            </Space>
+          </div>
         </footer>
 
         <Modal
