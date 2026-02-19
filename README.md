@@ -133,5 +133,5 @@ Each note object:
 
 ---
 
-© 2026 [ikramagix](https://github.com/ikramagix) from [merakeen 𖦹 studio](https://merakeen.com)  
-[ikramagix github](https://github.com/ikramagix) · [merakeen.com](https://merakeen.com)
+© 2026 [merakeen 𖦹 studio](https://merakeen.com)
+[merakeen.com](https://merakeen.com)
