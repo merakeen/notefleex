@@ -633,6 +633,31 @@ function App() {
           </main>
         </section>
 
+        <footer className="app-footer">
+          <Typography.Text className="app-footer-copy">
+            © {new Date().getFullYear()}{" "}
+            <a
+              href="https://github.com/ikramagix"
+              target="_blank"
+              rel="noreferrer"
+            >
+              ikramagix
+            </a>{" "}
+            from{" "}
+            <a href="https://merakeen.com" target="_blank" rel="noreferrer">
+              merakeen 𖦹 studio
+            </a>
+          </Typography.Text>
+          <Space wrap size={16} className="app-footer-links">
+            <a href="https://github.com/ikramagix" target="_blank" rel="noreferrer">
+              ikramagix github
+            </a>
+            <a href="https://merakeen.com" target="_blank" rel="noreferrer">
+              merakeen.com
+            </a>
+          </Space>
+        </footer>
+
         <Modal
           open={Boolean(previewNoteId)}
           title={previewNote?.title || "Untitled"}

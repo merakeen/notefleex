@@ -2,6 +2,8 @@
 
 notefleex is a markdown-first notes app for fast local note-taking.
 
+![Vite.js logo](./public/vitejs.svg)
+
 ## project scope
 
 ### currently in scope
@@ -128,3 +130,8 @@ Each note object:
 - import/export notes as markdown or json
 - keyboard shortcuts and command palette
 - optional cloud sync module
+
+---
+
+© 2026 [ikramagix](https://github.com/ikramagix) from [merakeen 𖦹 studio](https://merakeen.com)  
+[ikramagix github](https://github.com/ikramagix) · [merakeen.com](https://merakeen.com)

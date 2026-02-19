@@ -450,6 +450,42 @@
   color: var(--nf-ink);
 }
 
+.app-footer {
+  max-width: 1280px;
+  margin: 14px auto 0;
+  padding: 12px 14px;
+  border: 1px solid var(--nf-border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--nf-panel-strong), transparent 6%);
+  box-shadow: var(--nf-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.app-footer-copy.ant-typography {
+  color: var(--nf-ink-soft);
+  font-size: 13px;
+}
+
+.app-footer-links {
+  justify-content: flex-end;
+}
+
+.app-footer a {
+  color: var(--nf-accent);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.app-footer a:hover,
+.app-footer a:focus {
+  color: var(--nf-accent-strong);
+  text-decoration: underline;
+}
+
 @media (max-width: 1080px) {
   .workspace-grid {
     grid-template-columns: 1fr;
@@ -500,5 +536,15 @@
   .note-tile-footer {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .app-footer {
+    margin-top: 10px;
+    padding: 10px 12px;
+  }
+
+  .app-footer-links {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
