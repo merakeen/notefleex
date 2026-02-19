@@ -12,9 +12,10 @@ body,
 
 body {
   margin: 0;
-  color: #18123b;
-  background: #efe5f4;
+  color: var(--nf-ink, #0f172b);
+  background: var(--nf-bg-1, #f4ebec);
   font-family: "Nunito Sans", "Segoe UI", Tahoma, sans-serif;
+  transition: background-color 0.26s ease, color 0.26s ease;
 }
 
 h1,

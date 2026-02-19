@@ -5,6 +5,7 @@ import App from "./App";
 
 const STORAGE_KEY = "notefleex.notes.v3";
 const LEGACY_STORAGE_KEY = "notes";
+const THEME_STORAGE_KEY = "notefleex.theme.v1";
 
 describe("App", () => {
   beforeEach(() => {
@@ -83,5 +84,19 @@ describe("App", () => {
     render(<App />);
 
     expect(screen.getByText("Legacy note")).toBeInTheDocument();
+  });
+
+  it("toggles between light and dark mode", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    const modeSwitch = screen.getByRole("switch", { name: /toggle dark mode/i });
+    expect(document.documentElement).toHaveAttribute("data-theme", "light");
+
+    await user.click(modeSwitch);
+
+    expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+    expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe("dark");
   });
 });
