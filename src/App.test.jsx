@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 
-const STORAGE_KEY = "notefleex.notes.v2";
+const STORAGE_KEY = "notefleex.notes.v3";
 const LEGACY_STORAGE_KEY = "notes";
 
 describe("App", () => {
@@ -11,26 +11,25 @@ describe("App", () => {
     window.localStorage.clear();
   });
 
-  it("shows empty state before any note is created", () => {
+  it("renders the privacy-focused hero", () => {
     render(<App />);
 
-    expect(
-      screen.getByText(/create your first note to start writing/i)
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /notefleex/i })).toBeInTheDocument();
+    expect(screen.getByText(/everything runs on your device/i)).toBeInTheDocument();
   });
 
-  it("creates a new note from the sidebar button", async () => {
+  it("creates a note from the hero action", async () => {
     const user = userEvent.setup();
 
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /new note/i }));
+    await user.click(screen.getByRole("button", { name: /create note/i }));
 
-    expect(screen.getByDisplayValue("New note")).toBeInTheDocument();
-    expect(screen.getByText(/notes are saved automatically/i)).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Untitled note")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /editor/i })).toBeInTheDocument();
   });
 
-  it("filters notes by title", async () => {
+  it("filters notes by search term", async () => {
     const user = userEvent.setup();
 
     window.localStorage.setItem(
@@ -38,14 +37,24 @@ describe("App", () => {
       JSON.stringify([
         {
           id: "1",
-          title: "Project Plan",
-          content: "- align roadmap",
+          title: "Product plan",
+          content: "roadmap and milestones",
+          tags: ["planning"],
+          pinned: false,
+          archived: false,
+          color: "#ffd0e1",
+          createdAt: "2026-01-01T00:00:00.000Z",
           updatedAt: "2026-01-01T00:00:00.000Z",
         },
         {
           id: "2",
           title: "Groceries",
-          content: "- milk",
+          content: "milk eggs bread",
+          tags: ["home"],
+          pinned: false,
+          archived: false,
+          color: "#d8e7ff",
+          createdAt: "2026-01-02T00:00:00.000Z",
           updatedAt: "2026-01-02T00:00:00.000Z",
         },
       ])
@@ -53,18 +62,18 @@ describe("App", () => {
 
     render(<App />);
 
-    await user.type(screen.getByPlaceholderText(/search notes/i), "Project");
+    await user.type(screen.getByPlaceholderText(/search title, content, or tags/i), "plan");
 
-    expect(screen.getByText("Project Plan")).toBeInTheDocument();
+    expect(screen.getByText("Product plan")).toBeInTheDocument();
     expect(screen.queryByText("Groceries")).not.toBeInTheDocument();
   });
 
-  it("reads notes from the legacy storage key", () => {
+  it("reads legacy notes key for backward compatibility", () => {
     window.localStorage.setItem(
       LEGACY_STORAGE_KEY,
       JSON.stringify([
         {
-          id: 100,
+          id: 10,
           title: "Legacy note",
           content: "still available",
         },

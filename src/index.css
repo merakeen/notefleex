@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Sora:wght@500;600;700;800&display=swap");
+
 * {
   box-sizing: border-box;
 }
@@ -5,12 +7,20 @@
 html,
 body,
 #root {
-  margin: 0;
   min-height: 100%;
 }
 
 body {
-  color: #0f172a;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: #f8fafc;
+  margin: 0;
+  color: #18123b;
+  background: #efe5f4;
+  font-family: "Nunito Sans", "Segoe UI", Tahoma, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+.ant-typography {
+  font-family: "Sora", "Nunito Sans", "Segoe UI", Tahoma, sans-serif;
 }
