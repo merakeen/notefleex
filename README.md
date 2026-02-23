@@ -134,4 +134,3 @@ Each note object:
 ---
 
 © 2026 [merakeen 𖦹 studio](https://merakeen.com)
-[merakeen.com](https://merakeen.com)

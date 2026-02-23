@@ -454,38 +454,18 @@
   max-width: 1280px;
   margin: 18px auto 0;
   padding: clamp(16px, 2vw, 26px);
-  border: 1px solid rgba(84, 146, 227, 0.34);
-  border-radius: 26px;
-  background:
-    radial-gradient(circle at 85% 0%, rgba(84, 146, 227, 0.2), transparent 42%),
-    radial-gradient(circle at 10% 90%, rgba(42, 70, 114, 0.34), transparent 48%),
-    linear-gradient(180deg, #081022 0%, #050b16 100%);
-  box-shadow:
-    0 28px 44px rgba(0, 0, 0, 0.45),
-    0 0 28px rgba(40, 88, 160, 0.3),
-    inset 0 1px 0 rgba(158, 193, 246, 0.16);
   display: grid;
-  justify-items: start;
+  justify-items: center;
 }
 
 .footer-icon-link {
   width: 42px;
   height: 42px;
   border-radius: 999px;
-  border: 1px solid rgba(122, 159, 220, 0.4);
-  background: rgba(7, 16, 34, 0.82);
-  color: #9dbcf0;
   display: grid;
   place-items: center;
   font-size: 18px;
   transition: transform 0.18s ease, border-color 0.18s ease, color 0.18s ease;
-}
-
-.footer-icon-link:hover,
-.footer-icon-link:focus {
-  transform: translateY(-1px);
-  border-color: #87b3ef;
-  color: #d7e7ff;
 }
 
 .app-footer-divider {

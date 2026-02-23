@@ -635,19 +635,10 @@ function App() {
         </section>
 
         <footer className="app-footer">
-          <a
-            className="footer-icon-link"
-            href="https://merakeen.com"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="merakeen.com"
-          >
-            <GlobalOutlined />
-          </a>
           <div className="app-footer-divider" />
           <div className="app-footer-bottom">
             <Typography.Text className="app-footer-copy">
-              © {new Date().getFullYear()} merakeen 𖦹 studio
+              © {new Date().getFullYear()} merakeen 𖦹 studio built/supported notefleex
             </Typography.Text>
           </div>
         </footer>
