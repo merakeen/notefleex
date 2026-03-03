@@ -18,8 +18,8 @@ import {
   BookOutlined,
   DeleteOutlined,
   DownloadOutlined,
+  EditOutlined,
   EyeOutlined,
-  GlobalOutlined,
   InboxOutlined,
   MoonFilled,
   PlusOutlined,
@@ -191,7 +191,9 @@ function App() {
   const [mode, setMode] = useState("all");
   const [previewNoteId, setPreviewNoteId] = useState(null);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef(null);
+  const justCreatedRef = useRef(false);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", themeMode);
@@ -217,6 +219,16 @@ function App() {
       setActiveNoteId(firstActive?.id ?? notes[0]?.id ?? null);
     }
   }, [notes, activeNoteId]);
+
+  // Reset to view mode when switching notes; auto-enter edit for newly created ones.
+  useEffect(() => {
+    if (justCreatedRef.current) {
+      justCreatedRef.current = false;
+      setIsEditing(true);
+    } else {
+      setIsEditing(false);
+    }
+  }, [activeNoteId]);
 
   const notesByMode = useMemo(() => {
     if (mode === "pinned") {
@@ -343,6 +355,7 @@ function App() {
   }
 
   function addNote() {
+    justCreatedRef.current = true;
     const newNote = createNewNote(notes.length);
     setNotes((previousNotes) => [newNote, ...previousNotes]);
     setMode("all");
@@ -559,15 +572,6 @@ function App() {
                       <Space size={2}>
                         <Button
                           type="text"
-                          icon={<EyeOutlined />}
-                          aria-label={`Preview ${note.title || "untitled note"}`}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setPreviewNoteId(note.id);
-                          }}
-                        />
-                        <Button
-                          type="text"
                           icon={note.pinned ? <PushpinFilled /> : <PushpinOutlined />}
                           aria-label={`${note.pinned ? "Unpin" : "Pin"} ${
                             note.title || "untitled note"
@@ -608,45 +612,112 @@ function App() {
 
           <main className="editor-pane">
             {activeNote ? (
-              <>
-                <div className="editor-pane-header">
-                  <Typography.Title level={4}>Editor</Typography.Title>
-                  <Space wrap size={4}>
-                    {activeNote.pinned && <Tag color="gold">Pinned</Tag>}
-                    {activeNote.archived && <Tag color="default">Archived</Tag>}
-                    <Tag color="processing">{activeNote.tags.length} tags</Tag>
-                  </Space>
-                </div>
+              isEditing ? (
+                <>
+                  <div className="editor-pane-header">
+                    <Button
+                      type="text"
+                      icon={<EyeOutlined />}
+                      onClick={() => setIsEditing(false)}
+                    >
+                      Done editing
+                    </Button>
+                    <Space size={4}>
+                      {activeNote.pinned && <Tag color="gold">Pinned</Tag>}
+                      {activeNote.archived && <Tag color="default">Archived</Tag>}
+                      <Tag color="processing">{activeNote.tags.length} tags</Tag>
+                    </Space>
+                  </div>
 
-                <MarkdownInput
-                  note={activeNote}
-                  onChange={(changes) => mutateNote(activeNote.id, changes)}
-                  onPreview={() => setPreviewNoteId(activeNote.id)}
-                  onTogglePinned={() => mutateNote(activeNote.id, { pinned: !activeNote.pinned })}
-                  onToggleArchived={() =>
-                    mutateNote(activeNote.id, { archived: !activeNote.archived })
-                  }
-                  onDelete={() => deleteNote(activeNote.id)}
-                />
-              </>
+                  <MarkdownInput
+                    note={activeNote}
+                    onChange={(changes) => mutateNote(activeNote.id, changes)}
+                    onPreview={() => setPreviewNoteId(activeNote.id)}
+                    onTogglePinned={() =>
+                      mutateNote(activeNote.id, { pinned: !activeNote.pinned })
+                    }
+                    onToggleArchived={() =>
+                      mutateNote(activeNote.id, { archived: !activeNote.archived })
+                    }
+                    onDelete={() => deleteNote(activeNote.id)}
+                  />
+                </>
+              ) : (
+                <div className="note-view">
+                  <div className="note-view-toolbar">
+                    <span className="note-view-date">
+                      {formatUpdatedAt(activeNote.updatedAt)}
+                    </span>
+                    <Space size={2}>
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={activeNote.pinned ? <PushpinFilled /> : <PushpinOutlined />}
+                        aria-label={activeNote.pinned ? "Unpin" : "Pin"}
+                        onClick={() =>
+                          mutateNote(activeNote.id, { pinned: !activeNote.pinned })
+                        }
+                      />
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<InboxOutlined />}
+                        aria-label={activeNote.archived ? "Restore" : "Archive"}
+                        onClick={() =>
+                          mutateNote(activeNote.id, { archived: !activeNote.archived })
+                        }
+                      />
+                      <Button
+                        type="text"
+                        size="small"
+                        danger
+                        icon={<DeleteOutlined />}
+                        aria-label="Delete note"
+                        onClick={() => deleteNote(activeNote.id)}
+                      />
+                      <Button
+                        size="small"
+                        icon={<EditOutlined />}
+                        onClick={() => setIsEditing(true)}
+                      >
+                        Edit
+                      </Button>
+                    </Space>
+                  </div>
+
+                  <h1 className="note-view-title">{activeNote.title || "Untitled"}</h1>
+
+                  {activeNote.tags.length > 0 && (
+                    <Space wrap className="note-view-tags">
+                      {activeNote.tags.map((tag) => (
+                        <Tag key={`view-${activeNote.id}-${tag}`}>{tag}</Tag>
+                      ))}
+                    </Space>
+                  )}
+
+                  {activeNote.content ? (
+                    <NoteDisplay markdown={activeNote.content} />
+                  ) : (
+                    <div
+                      className="note-view-placeholder"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setIsEditing(true)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") setIsEditing(true);
+                      }}
+                    >
+                      <Typography.Text type="secondary">
+                        Nothing here yet — click Edit to start writing.
+                      </Typography.Text>
+                    </div>
+                  )}
+                </div>
+              )
             ) : (
               <Empty description="Select a note or create one to start writing." />
             )}
           </main>
-
-          <aside className="preview-pane">
-            <div className="preview-pane-header">
-              <Typography.Title level={4}>Preview</Typography.Title>
-            </div>
-            {activeNote ? (
-              <NoteDisplay markdown={activeNote.content} />
-            ) : (
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description="Select a note to see the preview."
-              />
-            )}
-          </aside>
         </section>
 
         <footer className="app-footer">
