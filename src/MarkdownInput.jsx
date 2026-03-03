@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   DeleteOutlined,
   EyeOutlined,
@@ -24,6 +25,15 @@ function MarkdownInput({
   onToggleArchived,
   onDelete,
 }) {
+  // Local draft avoids the controlled-input-eats-commas bug.
+  // Parsed and saved only when the field loses focus.
+  const [tagDraft, setTagDraft] = useState(() => note.tags.join(", "));
+
+  // When a different note is selected, reset the draft to match.
+  useEffect(() => {
+    setTagDraft(note.tags.join(", "));
+  }, [note.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <Card className="editor-card" variant="borderless">
       <div className="editor-toolbar">
@@ -42,7 +52,7 @@ function MarkdownInput({
             {note.pinned ? "Pinned" : "Pin"}
           </Button>
           <Button icon={<EyeOutlined />} onClick={onPreview}>
-            Open preview
+            Full preview
           </Button>
           <Button
             icon={note.archived ? <RollbackOutlined /> : <InboxOutlined />}
@@ -65,9 +75,10 @@ function MarkdownInput({
       />
 
       <Input
-        placeholder="Tags (comma separated)"
-        value={note.tags.join(", ")}
-        onChange={(event) => onChange({ tags: parseTags(event.target.value) })}
+        placeholder="Tags — comma separated (e.g. work, ideas, todo)"
+        value={tagDraft}
+        onChange={(event) => setTagDraft(event.target.value)}
+        onBlur={(event) => onChange({ tags: parseTags(event.target.value) })}
       />
 
       {note.tags.length > 0 ? (

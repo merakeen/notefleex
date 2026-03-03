@@ -37,7 +37,7 @@ import "./App.css";
 const NOTES_STORAGE_KEY = "notefleex.notes.v3";
 const THEME_STORAGE_KEY = "notefleex.theme.v1";
 const LEGACY_STORAGE_KEYS = ["notefleex.notes.v2", "notes"];
-const NOTE_COLORS = ["#b7d1f8", "#d8e8ff", "#a9c7f2", "#c5dcfa", "#e4eefc"];
+const NOTE_COLORS = ["#fde8d3", "#d2f5e3", "#ead5f9", "#fef3c7", "#dbeafe", "#fce7f0"];
 
 function toTagArray(value) {
   if (!value) {
@@ -610,8 +610,8 @@ function App() {
             {activeNote ? (
               <>
                 <div className="editor-pane-header">
-                  <Typography.Title level={3}>Editor</Typography.Title>
-                  <Space wrap>
+                  <Typography.Title level={4}>Editor</Typography.Title>
+                  <Space wrap size={4}>
                     {activeNote.pinned && <Tag color="gold">Pinned</Tag>}
                     {activeNote.archived && <Tag color="default">Archived</Tag>}
                     <Tag color="processing">{activeNote.tags.length} tags</Tag>
@@ -628,16 +628,25 @@ function App() {
                   }
                   onDelete={() => deleteNote(activeNote.id)}
                 />
-
-                <section className="live-preview-panel">
-                  <Typography.Title level={4}>Live markdown preview</Typography.Title>
-                  <NoteDisplay markdown={activeNote.content} />
-                </section>
               </>
             ) : (
               <Empty description="Select a note or create one to start writing." />
             )}
           </main>
+
+          <aside className="preview-pane">
+            <div className="preview-pane-header">
+              <Typography.Title level={4}>Preview</Typography.Title>
+            </div>
+            {activeNote ? (
+              <NoteDisplay markdown={activeNote.content} />
+            ) : (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="Select a note to see the preview."
+              />
+            )}
+          </aside>
         </section>
 
         <footer className="app-footer">

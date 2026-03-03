@@ -170,11 +170,11 @@
 }
 
 .workspace-grid {
-  max-width: 1280px;
+  max-width: 1440px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(320px, 410px) minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
 }
 
 .notes-pane,
@@ -190,7 +190,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 620px;
+  min-height: 200px;
   position: sticky;
   top: 20px;
   align-self: start;
@@ -314,6 +314,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 400px;
 }
 
 .editor-pane-header {
@@ -325,6 +326,42 @@
 
 .editor-pane-header .ant-typography {
   margin: 0;
+  color: var(--nf-ink);
+}
+
+.preview-pane {
+  border: 1px solid var(--nf-border);
+  border-radius: 28px;
+  background: var(--nf-panel);
+  box-shadow: var(--nf-shadow);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 20px;
+  align-self: start;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--nf-border), transparent 20%) transparent;
+}
+
+.preview-pane::-webkit-scrollbar {
+  width: 4px;
+}
+
+.preview-pane::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.preview-pane::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--nf-border), transparent 20%);
+  border-radius: 2px;
+}
+
+.preview-pane-header .ant-typography {
+  margin: 0 0 4px;
   color: var(--nf-ink);
 }
 
@@ -352,17 +389,6 @@
   margin: 10px 0 0;
 }
 
-.live-preview-panel {
-  border: 1px solid var(--nf-border);
-  border-radius: 20px;
-  padding: 16px;
-  background: var(--nf-panel-strong);
-}
-
-.live-preview-panel .ant-typography {
-  margin-top: 0;
-  color: var(--nf-ink);
-}
 
 .markdown-output {
   color: var(--nf-ink);
@@ -632,7 +658,7 @@
 }
 
 .app-footer {
-  max-width: 1280px;
+  max-width: 1440px;
   margin: 18px auto 0;
   padding: clamp(16px, 2vw, 26px);
   display: grid;
@@ -665,9 +691,29 @@
   margin: 0;
 }
 
-@media (max-width: 1080px) {
+/* 2-column: notes sidebar + editor, preview drops below spanning full width */
+@media (max-width: 1200px) {
+  .workspace-grid {
+    grid-template-columns: minmax(260px, 300px) 1fr;
+  }
+
+  .preview-pane {
+    grid-column: 1 / -1;
+    position: relative;
+    top: 0;
+    max-height: 60vh;
+  }
+}
+
+/* Single column on narrow viewports */
+@media (max-width: 720px) {
   .workspace-grid {
     grid-template-columns: 1fr;
+  }
+
+  .preview-pane {
+    grid-column: auto;
+    max-height: none;
   }
 
   .notes-pane {
@@ -675,11 +721,11 @@
     top: 0;
     max-height: none;
     overflow: visible;
-    min-height: 460px;
+    min-height: 320px;
   }
 
   .note-list {
-    max-height: 55vh;
+    max-height: 50vh;
   }
 }
 
@@ -715,7 +761,8 @@
   }
 
   .notes-pane,
-  .editor-pane {
+  .editor-pane,
+  .preview-pane {
     border-radius: 20px;
     padding: 12px;
   }
