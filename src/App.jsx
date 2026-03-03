@@ -15,6 +15,7 @@ import {
   message,
 } from "antd";
 import {
+  BookOutlined,
   DeleteOutlined,
   DownloadOutlined,
   EyeOutlined,
@@ -29,6 +30,7 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import MarkdownInput from "./MarkdownInput";
+import MarkdownTutorial from "./MarkdownTutorial";
 import NoteDisplay from "./NoteDisplay";
 import "./App.css";
 
@@ -188,6 +190,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [mode, setMode] = useState("all");
   const [previewNoteId, setPreviewNoteId] = useState(null);
+  const [showTutorial, setShowTutorial] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -459,6 +462,9 @@ function App() {
             <Button type="primary" size="large" icon={<PlusOutlined />} onClick={addNote}>
               Create note
             </Button>
+            <Button size="large" icon={<BookOutlined />} onClick={() => setShowTutorial(true)}>
+              Markdown guide
+            </Button>
             <Button size="large" icon={<DownloadOutlined />} onClick={exportNotes}>
               Export JSON
             </Button>
@@ -652,6 +658,8 @@ function App() {
         >
           <NoteDisplay markdown={previewNote?.content || ""} />
         </Modal>
+
+        <MarkdownTutorial open={showTutorial} onClose={() => setShowTutorial(false)} />
       </div>
     </ConfigProvider>
   );

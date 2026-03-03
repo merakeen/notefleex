@@ -191,6 +191,11 @@
   flex-direction: column;
   gap: 12px;
   min-height: 620px;
+  position: sticky;
+  top: 20px;
+  align-self: start;
+  max-height: calc(100vh - 40px);
+  overflow: hidden;
 }
 
 .notes-pane-header {
@@ -212,8 +217,25 @@
   margin-top: 2px;
   display: grid;
   gap: 10px;
-  overflow: auto;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--nf-border), transparent 20%) transparent;
+}
+
+.note-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.note-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.note-list::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--nf-border), transparent 20%);
+  border-radius: 2px;
 }
 
 .note-tile {
@@ -237,6 +259,14 @@
 .note-tile.active {
   border-color: var(--nf-accent);
   box-shadow: 0 12px 24px rgba(35, 74, 131, 0.3);
+}
+
+[data-theme="dark"] .note-tile:hover {
+  box-shadow: 0 8px 22px rgba(84, 146, 227, 0.18);
+}
+
+[data-theme="dark"] .note-tile.active {
+  box-shadow: 0 10px 26px rgba(84, 146, 227, 0.22);
 }
 
 .note-tile-header {
@@ -338,15 +368,24 @@
   color: var(--nf-ink);
   font-size: 15px;
   line-height: 1.7;
+  overflow-x: auto;
+  word-break: break-word;
 }
 
 .markdown-output h1,
 .markdown-output h2,
 .markdown-output h3,
 .markdown-output h4 {
-  margin-bottom: 0.55em;
+  color: var(--nf-ink);
+  margin-bottom: 0.45em;
   margin-top: 1.2em;
+  line-height: 1.3;
 }
+
+.markdown-output h1 { font-size: 1.55em; }
+.markdown-output h2 { font-size: 1.3em; }
+.markdown-output h3 { font-size: 1.1em; }
+.markdown-output h4 { font-size: 1em; font-weight: 700; }
 
 .markdown-output p,
 .markdown-output ul,
@@ -360,8 +399,19 @@
   background: var(--nf-code-bg);
   color: var(--nf-code-ink);
   border-radius: 12px;
-  padding: 12px;
+  padding: 14px 16px;
   overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+/* Fix: prevent double-styling of code inside pre blocks */
+.markdown-output pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
 }
 
 .markdown-output code {
@@ -369,17 +419,148 @@
   color: var(--nf-inline-code-ink);
   border-radius: 6px;
   padding: 2px 6px;
+  font-size: 0.9em;
 }
 
 .markdown-output blockquote {
   border-left: 4px solid var(--nf-quote);
-  padding-left: 12px;
+  padding-left: 14px;
   color: var(--nf-ink-soft);
   margin-left: 0;
+  font-style: italic;
+}
+
+.markdown-output a {
+  color: var(--nf-accent);
+  text-decoration: none;
+}
+
+.markdown-output a:hover {
+  text-decoration: underline;
+}
+
+.markdown-output hr {
+  border: none;
+  border-top: 1px solid var(--nf-border);
+  margin: 1.4em 0;
+}
+
+.markdown-output ul,
+.markdown-output ol {
+  padding-left: 1.6em;
+}
+
+.markdown-output li {
+  margin-bottom: 0.25em;
+}
+
+.markdown-output li > p {
+  margin-bottom: 0.3em;
+}
+
+/* Task list checkboxes */
+.markdown-output input[type="checkbox"] {
+  margin-right: 6px;
+  accent-color: var(--nf-accent);
+  cursor: default;
+}
+
+/* Tables */
+.markdown-output table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+  display: block;
+  overflow-x: auto;
+  font-size: 14px;
+}
+
+.markdown-output th,
+.markdown-output td {
+  padding: 8px 12px;
+  border: 1px solid var(--nf-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.markdown-output th {
+  background: color-mix(in srgb, var(--nf-accent), transparent 88%);
+  font-weight: 700;
+  color: var(--nf-ink);
+}
+
+.markdown-output tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--nf-panel-strong), var(--nf-accent) 4%);
+}
+
+.markdown-output img {
+  max-width: 100%;
+  border-radius: 8px;
 }
 
 .notes-empty {
   margin-top: 20px;
+}
+
+/* ── Tutorial modal ─────────────────────────────────────── */
+
+.tutorial-example {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.tutorial-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tutorial-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nf-ink-muted);
+}
+
+.tutorial-code {
+  background: var(--nf-code-bg);
+  color: var(--nf-code-ink);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  font-family: "Cascadia Code", "Fira Code", "Courier New", monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.tutorial-render {
+  border: 1px solid var(--nf-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--nf-panel-strong);
+  min-height: 40px;
+}
+
+.tutorial-render .markdown-output {
+  font-size: 13.5px;
+}
+
+.tutorial-render .markdown-output h1,
+.tutorial-render .markdown-output h2,
+.tutorial-render .markdown-output h3,
+.tutorial-render .markdown-output h4 {
+  margin-top: 0.4em;
+}
+
+@media (max-width: 640px) {
+  .tutorial-example {
+    grid-template-columns: 1fr;
+  }
 }
 
 .app-shell .ant-typography,
@@ -471,7 +652,7 @@
 .app-footer-divider {
   width: 100%;
   margin: clamp(14px, 1.9vw, 24px) 0 0;
-  border-top: 1px solid rgba(122, 159, 220, 0.28);
+  border-top: 1px solid color-mix(in srgb, var(--nf-border), transparent 44%);
 }
 
 .app-footer-bottom {
@@ -479,8 +660,8 @@
 }
 
 .app-footer-copy.ant-typography {
-  color: #b6c4df;
-  font-size: 15px;
+  color: var(--nf-ink-muted);
+  font-size: 14px;
   margin: 0;
 }
 
@@ -490,7 +671,15 @@
   }
 
   .notes-pane {
+    position: relative;
+    top: 0;
+    max-height: none;
+    overflow: visible;
     min-height: 460px;
+  }
+
+  .note-list {
+    max-height: 55vh;
   }
 }
 
