@@ -16,6 +16,7 @@ import {
 } from "antd";
 import {
   BookOutlined,
+  CompassOutlined,
   DeleteOutlined,
   DownloadOutlined,
   EditOutlined,
@@ -33,6 +34,7 @@ import { useRegisterSW } from "virtual:pwa-register/react";
 import MarkdownInput from "./MarkdownInput";
 import MarkdownTutorial from "./MarkdownTutorial";
 import NoteDisplay from "./NoteDisplay";
+import OnboardingWizard, { ONBOARDING_KEY } from "./OnboardingWizard";
 import { generateSalt, deriveKey, encryptNotes, decryptNotes } from "./vaultCrypto";
 import { VaultSwitcherButton, CreateVaultModal, UnlockVaultModal } from "./VaultManager";
 import "./App.css";
@@ -256,6 +258,13 @@ function App() {
   const [mode, setMode] = useState("all");
   const [previewNoteId, setPreviewNoteId] = useState(null);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    try {
+      return !window.localStorage.getItem(ONBOARDING_KEY);
+    } catch {
+      return false;
+    }
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [swDismissed, setSwDismissed] = useState(false);
   const fileInputRef = useRef(null);
@@ -695,6 +704,9 @@ function App() {
             <Button size="large" icon={<BookOutlined />} onClick={() => setShowTutorial(true)}>
               Markdown guide
             </Button>
+            <Button size="large" icon={<CompassOutlined />} onClick={() => setShowOnboarding(true)}>
+              Get started
+            </Button>
             <Button size="large" icon={<DownloadOutlined />} onClick={exportNotes}>
               Export as JSON backup file
             </Button>
@@ -967,6 +979,14 @@ function App() {
         </Modal>
 
         <MarkdownTutorial open={showTutorial} onClose={() => setShowTutorial(false)} />
+
+        <OnboardingWizard
+          open={showOnboarding}
+          onClose={() => setShowOnboarding(false)}
+          onOpenTutorial={() => setShowTutorial(true)}
+          onCreateNote={addNote}
+          onCreateVault={() => setShowCreateVault(true)}
+        />
 
         <CreateVaultModal
           open={showCreateVault}
