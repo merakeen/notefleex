@@ -267,10 +267,25 @@ function App() {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [swDismissed, setSwDismissed] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [installDismissed, setInstallDismissed] = useState(() => {
+    try { return !!window.localStorage.getItem("notefleex.install-dismissed"); } catch { return false; }
+  });
   const fileInputRef = useRef(null);
   const justCreatedRef = useRef(false);
 
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isInStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    !!window.navigator.standalone;
+
   const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW();
+
+  useEffect(() => {
+    const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", themeMode);
@@ -1008,6 +1023,47 @@ function App() {
             </Button>
             <Button size="small" type="text" onClick={() => setSwDismissed(true)}>
               Later
+            </Button>
+          </div>
+        )}
+
+        {!installDismissed && !isInStandalone && (installPrompt || isIos) && (
+          <div className="pwa-install-banner" role="complementary">
+            <DownloadOutlined className="pwa-install-icon" />
+            <div className="pwa-install-text">
+              <strong>Add to Home Screen</strong>
+              {isIos ? (
+                <span>Tap the share icon, then &ldquo;Add to Home Screen&rdquo;</span>
+              ) : (
+                <span>Install notefleex for quick offline access</span>
+              )}
+            </div>
+            {!isIos && (
+              <Button
+                size="small"
+                type="primary"
+                onClick={async () => {
+                  installPrompt.prompt();
+                  const { outcome } = await installPrompt.userChoice;
+                  if (outcome === "accepted") {
+                    setInstallPrompt(null);
+                  }
+                  setInstallDismissed(true);
+                  try { window.localStorage.setItem("notefleex.install-dismissed", "1"); } catch {}
+                }}
+              >
+                Install
+              </Button>
+            )}
+            <Button
+              size="small"
+              type="text"
+              onClick={() => {
+                setInstallDismissed(true);
+                try { window.localStorage.setItem("notefleex.install-dismissed", "1"); } catch {}
+              }}
+            >
+              {isIos ? "Got it" : "Not now"}
             </Button>
           </div>
         )}

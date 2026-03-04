@@ -774,6 +774,57 @@
   white-space: nowrap;
 }
 
+/* ── PWA install banner ─────────────────────────────────────────────────── */
+
+.pwa-install-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--nf-panel-strong);
+  border: 1px solid var(--nf-accent);
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(84, 146, 227, 0.18);
+  font-size: 13px;
+  color: var(--nf-ink);
+  max-width: calc(100vw - 32px);
+  animation: nf-slide-up 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes nf-slide-up {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.pwa-install-icon {
+  font-size: 20px;
+  color: var(--nf-accent);
+  flex-shrink: 0;
+}
+
+.pwa-install-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pwa-install-text strong {
+  font-weight: 600;
+  color: var(--nf-ink);
+}
+
+.pwa-install-text span {
+  color: var(--nf-ink-soft);
+  font-size: 12px;
+}
+
 /* Single column on narrow viewports */
 @media (max-width: 1080px) {
   .workspace-grid {
