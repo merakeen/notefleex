@@ -324,6 +324,23 @@
   min-height: 400px;
 }
 
+.editor-pane > .ant-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.editor-pane > .ant-empty .ant-empty-image {
+  animation: nf-float 3s ease-in-out infinite;
+}
+
+@keyframes nf-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
 .editor-pane-header {
   display: flex;
   align-items: center;
