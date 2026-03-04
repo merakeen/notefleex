@@ -963,7 +963,7 @@ function App() {
           <div className="app-footer-divider" />
           <div className="app-footer-bottom">
             <Typography.Text className="app-footer-copy">
-              © {new Date().getFullYear()} merakeen 𖦹 studio built & supported ✎ notefleex
+              © {new Date().getFullYear()} merakeen 𖦹 studio built & supported notefleex
             </Typography.Text>
           </div>
         </footer>
