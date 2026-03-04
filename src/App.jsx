@@ -947,7 +947,7 @@ function App() {
                       }}
                     >
                       <Typography.Text type="secondary">
-                        Nothing here yet — click Edit to start writing.
+                        Nothing here yet... click <i>Edit</i> & start writing something awesome.
                       </Typography.Text>
                     </div>
                   )}
