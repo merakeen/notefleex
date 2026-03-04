@@ -29,15 +29,22 @@ import {
   SunFilled,
   UploadOutlined,
 } from "@ant-design/icons";
+import { useRegisterSW } from "virtual:pwa-register/react";
 import MarkdownInput from "./MarkdownInput";
 import MarkdownTutorial from "./MarkdownTutorial";
 import NoteDisplay from "./NoteDisplay";
+import { generateSalt, deriveKey, encryptNotes, decryptNotes } from "./vaultCrypto";
+import { VaultSwitcherButton, CreateVaultModal, UnlockVaultModal } from "./VaultManager";
 import "./App.css";
 
 const NOTES_STORAGE_KEY = "notefleex.notes.v3";
 const THEME_STORAGE_KEY = "notefleex.theme.v1";
 const LEGACY_STORAGE_KEYS = ["notefleex.notes.v2", "notes"];
 const NOTE_COLORS = ["#fde8d3", "#d2f5e3", "#ead5f9", "#fef3c7", "#dbeafe", "#fce7f0"];
+
+const VAULTS_REGISTRY_KEY = "notefleex.vaults.v1";
+const DEFAULT_VAULT_ID = "default";
+const vaultDataKey = (id) => `notefleex.vault.${id}`;
 
 function toTagArray(value) {
   if (!value) {
@@ -146,6 +153,58 @@ function readStoredThemeMode() {
   return "light";
 }
 
+function initializeVaultsAndNotes() {
+  if (typeof window === "undefined") {
+    const defaultVault = {
+      id: DEFAULT_VAULT_ID,
+      name: "My Notes",
+      encrypted: false,
+      salt: null,
+      createdAt: new Date().toISOString(),
+    };
+    return { vaults: [defaultVault], activeVaultId: DEFAULT_VAULT_ID, notes: [] };
+  }
+
+  // If the registry already exists, migration is done — load state from vault storage
+  const existingRegistry = window.localStorage.getItem(VAULTS_REGISTRY_KEY);
+  if (existingRegistry) {
+    try {
+      const vaults = JSON.parse(existingRegistry);
+      const defaultVaultRaw = window.localStorage.getItem(vaultDataKey(DEFAULT_VAULT_ID));
+      const defaultVaultData = defaultVaultRaw ? JSON.parse(defaultVaultRaw) : { notes: [] };
+      const notes = (defaultVaultData.notes || [])
+        .map((note, i) => normalizeNote(note, i))
+        .filter(Boolean);
+      return { vaults, activeVaultId: DEFAULT_VAULT_ID, notes };
+    } catch {
+      // Fall through to migration
+    }
+  }
+
+  // First run — migrate existing notes into the default vault
+  const legacyNotes = readStoredNotes();
+  const now = new Date().toISOString();
+  const defaultVault = {
+    id: DEFAULT_VAULT_ID,
+    name: "My Notes",
+    encrypted: false,
+    salt: null,
+    createdAt: now,
+  };
+
+  try {
+    window.localStorage.setItem(VAULTS_REGISTRY_KEY, JSON.stringify([defaultVault]));
+    window.localStorage.setItem(
+      vaultDataKey(DEFAULT_VAULT_ID),
+      JSON.stringify({ encrypted: false, notes: legacyNotes })
+    );
+  } catch {
+    // Storage write failed — proceed in-memory
+  }
+
+  return { vaults: [defaultVault], activeVaultId: DEFAULT_VAULT_ID, notes: legacyNotes };
+}
+
 function createNewNote(index) {
   const now = new Date().toISOString();
 
@@ -184,7 +243,13 @@ function buildSnippet(content) {
 }
 
 function App() {
-  const [notes, setNotes] = useState(readStoredNotes);
+  const [vaultState] = useState(initializeVaultsAndNotes);
+  const [vaults, setVaults] = useState(vaultState.vaults);
+  const [activeVaultId, setActiveVaultId] = useState(vaultState.activeVaultId);
+  const [notes, setNotes] = useState(vaultState.notes);
+  const [unlockedVaultKeys, setUnlockedVaultKeys] = useState(new Map());
+  const [unlockTarget, setUnlockTarget] = useState(null);
+  const [showCreateVault, setShowCreateVault] = useState(false);
   const [themeMode, setThemeMode] = useState(readStoredThemeMode);
   const [activeNoteId, setActiveNoteId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -192,8 +257,11 @@ function App() {
   const [previewNoteId, setPreviewNoteId] = useState(null);
   const [showTutorial, setShowTutorial] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [swDismissed, setSwDismissed] = useState(false);
   const fileInputRef = useRef(null);
   const justCreatedRef = useRef(false);
+
+  const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW();
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", themeMode);
@@ -206,12 +274,36 @@ function App() {
   }, [themeMode]);
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
-    } catch {
-      // Ignore storage write failures.
+    const activeVaultMeta = vaults.find((v) => v.id === activeVaultId);
+    if (!activeVaultMeta) return;
+
+    if (!activeVaultMeta.encrypted) {
+      try {
+        window.localStorage.setItem(
+          vaultDataKey(activeVaultId),
+          JSON.stringify({ encrypted: false, notes })
+        );
+      } catch {
+        // Ignore storage write failures.
+      }
+      return;
     }
-  }, [notes]);
+
+    const key = unlockedVaultKeys.get(activeVaultId);
+    if (!key) return;
+
+    (async () => {
+      try {
+        const { iv, data } = await encryptNotes(notes, key);
+        window.localStorage.setItem(
+          vaultDataKey(activeVaultId),
+          JSON.stringify({ encrypted: true, iv, data })
+        );
+      } catch {
+        // Ignore encryption/storage failures.
+      }
+    })();
+  }, [notes, activeVaultId, vaults, unlockedVaultKeys]);
 
   useEffect(() => {
     if (!notes.some((note) => note.id === activeNoteId)) {
@@ -338,6 +430,129 @@ function App() {
     };
   }, [themeMode]);
 
+  async function switchVault(id) {
+    if (id === activeVaultId) return;
+    const meta = vaults.find((v) => v.id === id);
+    if (!meta) return;
+
+    if (!meta.encrypted) {
+      try {
+        const raw = window.localStorage.getItem(vaultDataKey(id));
+        const data = raw ? JSON.parse(raw) : { notes: [] };
+        setActiveVaultId(id);
+        setNotes((data.notes || []).map((n, i) => normalizeNote(n, i)).filter(Boolean));
+        setActiveNoteId(null);
+        setMode("all");
+        setSearchTerm("");
+      } catch {
+        message.error("Could not load vault.");
+      }
+      return;
+    }
+
+    const cachedKey = unlockedVaultKeys.get(id);
+    if (cachedKey) {
+      try {
+        const raw = window.localStorage.getItem(vaultDataKey(id));
+        const { iv, data } = JSON.parse(raw);
+        const decryptedNotes = await decryptNotes(iv, data, cachedKey);
+        setActiveVaultId(id);
+        setNotes(decryptedNotes.map((n, i) => normalizeNote(n, i)).filter(Boolean));
+        setActiveNoteId(null);
+        setMode("all");
+        setSearchTerm("");
+      } catch {
+        message.error("Could not decrypt vault.");
+      }
+      return;
+    }
+
+    setUnlockTarget(meta);
+  }
+
+  async function handleUnlockVault(vaultId, password) {
+    const meta = vaults.find((v) => v.id === vaultId);
+    if (!meta || !meta.salt) throw new Error("Vault not found");
+
+    const key = await deriveKey(password, meta.salt);
+
+    const raw = window.localStorage.getItem(vaultDataKey(vaultId));
+    if (!raw) {
+      setUnlockedVaultKeys((prev) => new Map(prev).set(vaultId, key));
+      setActiveVaultId(vaultId);
+      setNotes([]);
+      setActiveNoteId(null);
+      setMode("all");
+      setSearchTerm("");
+      setUnlockTarget(null);
+      return;
+    }
+
+    const { iv, data } = JSON.parse(raw);
+    const decryptedNotes = await decryptNotes(iv, data, key);
+
+    setUnlockedVaultKeys((prev) => new Map(prev).set(vaultId, key));
+    setActiveVaultId(vaultId);
+    setNotes(decryptedNotes.map((n, i) => normalizeNote(n, i)).filter(Boolean));
+    setActiveNoteId(null);
+    setMode("all");
+    setSearchTerm("");
+    setUnlockTarget(null);
+  }
+
+  async function handleCreateVault(name, password) {
+    const id = `vault_${Date.now()}`;
+    const now = new Date().toISOString();
+    let registryEntry;
+
+    if (password) {
+      const salt = generateSalt();
+      const key = await deriveKey(password, salt);
+      const { iv, data } = await encryptNotes([], key);
+      window.localStorage.setItem(vaultDataKey(id), JSON.stringify({ encrypted: true, iv, data }));
+      setUnlockedVaultKeys((prev) => new Map(prev).set(id, key));
+      registryEntry = { id, name, encrypted: true, salt, createdAt: now };
+    } else {
+      window.localStorage.setItem(vaultDataKey(id), JSON.stringify({ encrypted: false, notes: [] }));
+      registryEntry = { id, name, encrypted: false, salt: null, createdAt: now };
+    }
+
+    const updatedVaults = [...vaults, registryEntry];
+    setVaults(updatedVaults);
+    window.localStorage.setItem(VAULTS_REGISTRY_KEY, JSON.stringify(updatedVaults));
+    setActiveVaultId(id);
+    setNotes([]);
+    setActiveNoteId(null);
+    setMode("all");
+    setSearchTerm("");
+    setShowCreateVault(false);
+  }
+
+  function handleDeleteVault(id) {
+    if (id === DEFAULT_VAULT_ID) {
+      message.warning("The default vault cannot be deleted.");
+      return;
+    }
+
+    window.localStorage.removeItem(vaultDataKey(id));
+    setUnlockedVaultKeys((prev) => {
+      const next = new Map(prev);
+      next.delete(id);
+      return next;
+    });
+
+    const updatedVaults = vaults.filter((v) => v.id !== id);
+    setVaults(updatedVaults);
+    window.localStorage.setItem(VAULTS_REGISTRY_KEY, JSON.stringify(updatedVaults));
+
+    if (activeVaultId === id) {
+      const defaultMeta = updatedVaults.find((v) => v.id === DEFAULT_VAULT_ID);
+      if (defaultMeta) {
+        switchVault(DEFAULT_VAULT_ID);
+      }
+    }
+  }
+
   function mutateNote(noteId, changes) {
     setNotes((previousNotes) =>
       previousNotes.map((note) => {
@@ -461,14 +676,16 @@ function App() {
             notefleex
           </Typography.Title>
           <Typography.Paragraph className="hero-subtitle">
-            Your private notes workspace. Everything runs on your device, with no account and no
-            cloud storage. Notes stay local in your browser only.
+            Your private notes workspace. Everything runs exclusively on your device. No account, no
+            cloud storage: private on purpose.
           </Typography.Paragraph>
 
           <div className="hero-badges" aria-label="privacy guarantees">
             <span>Local-first</span>
             <span>No cloud sync</span>
             <span>No trackers</span>
+            <span>Full privacy</span>
+            <span>Manual backup possible</span>
           </div>
 
           <Space wrap className="hero-actions" size={10}>
@@ -479,14 +696,14 @@ function App() {
               Markdown guide
             </Button>
             <Button size="large" icon={<DownloadOutlined />} onClick={exportNotes}>
-              Export JSON
+              Export as JSON backup file
             </Button>
             <Button
               size="large"
               icon={<UploadOutlined />}
               onClick={() => fileInputRef.current?.click()}
             >
-              Import JSON
+              Import JSON backup file
             </Button>
           </Space>
 
@@ -504,6 +721,16 @@ function App() {
             <div className="notes-pane-header">
               <Typography.Title level={4}>Notes</Typography.Title>
               <Badge count={stats.all} color={themeMode === "dark" ? "#5492e3" : "#2a4672"} />
+            </div>
+
+            <div className="vault-switcher-row">
+              <VaultSwitcherButton
+                vaults={vaults}
+                activeVaultId={activeVaultId}
+                onSwitch={switchVault}
+                onCreate={() => setShowCreateVault(true)}
+                onDelete={handleDeleteVault}
+              />
             </div>
 
             <Segmented
@@ -740,6 +967,30 @@ function App() {
         </Modal>
 
         <MarkdownTutorial open={showTutorial} onClose={() => setShowTutorial(false)} />
+
+        <CreateVaultModal
+          open={showCreateVault}
+          onClose={() => setShowCreateVault(false)}
+          onCreate={handleCreateVault}
+        />
+
+        <UnlockVaultModal
+          vault={unlockTarget}
+          onUnlock={handleUnlockVault}
+          onCancel={() => setUnlockTarget(null)}
+        />
+
+        {needRefresh && !swDismissed && (
+          <div className="sw-update-banner" role="alert">
+            <span>A new version of notefleex is available.</span>
+            <Button size="small" type="primary" onClick={() => updateServiceWorker(true)}>
+              Update now
+            </Button>
+            <Button size="small" type="text" onClick={() => setSwDismissed(true)}>
+              Later
+            </Button>
+          </div>
+        )}
       </div>
     </ConfigProvider>
   );

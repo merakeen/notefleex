@@ -16,7 +16,7 @@ describe("App", () => {
     render(<App />);
 
     expect(screen.getByRole("heading", { name: /notefleex/i })).toBeInTheDocument();
-    expect(screen.getByText(/everything runs on your device/i)).toBeInTheDocument();
+    expect(screen.getByText(/everything runs.*on your device/i)).toBeInTheDocument();
   });
 
   it("creates a note from the hero action", async () => {
@@ -27,7 +27,7 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: /create note/i }));
 
     expect(screen.getByDisplayValue("Untitled note")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /editor/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /done editing/i })).toBeInTheDocument();
   });
 
   it("filters notes by search term", async () => {
@@ -65,7 +65,7 @@ describe("App", () => {
 
     await user.type(screen.getByPlaceholderText(/search title, content, or tags/i), "plan");
 
-    expect(screen.getByText("Product plan")).toBeInTheDocument();
+    expect(screen.getAllByText("Product plan")[0]).toBeInTheDocument();
     expect(screen.queryByText("Groceries")).not.toBeInTheDocument();
   });
 
@@ -83,7 +83,7 @@ describe("App", () => {
 
     render(<App />);
 
-    expect(screen.getByText("Legacy note")).toBeInTheDocument();
+    expect(screen.getAllByText("Legacy note")[0]).toBeInTheDocument();
   });
 
   it("toggles between light and dark mode", async () => {

@@ -712,6 +712,51 @@
   margin: 0;
 }
 
+/* ── Vault switcher ─────────────────────────────────────────────────────── */
+
+.vault-switcher-row {
+  margin-bottom: 10px;
+}
+
+.vault-switcher-btn {
+  font-size: 12px;
+  font-weight: 700;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border-color: var(--nf-border) !important;
+  color: var(--nf-ink-soft) !important;
+  background: transparent !important;
+  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+}
+
+.vault-switcher-btn:hover {
+  background: color-mix(in srgb, var(--nf-accent) 12%, transparent) !important;
+  border-color: var(--nf-accent) !important;
+  color: var(--nf-accent) !important;
+}
+
+/* ── SW update banner ───────────────────────────────────────────────────── */
+
+.sw-update-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--nf-panel-strong);
+  border: 1px solid var(--nf-border);
+  border-radius: 14px;
+  box-shadow: var(--nf-shadow);
+  font-size: 13px;
+  color: var(--nf-ink);
+  white-space: nowrap;
+}
+
 /* Single column on narrow viewports */
 @media (max-width: 1080px) {
   .workspace-grid {
