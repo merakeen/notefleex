@@ -16,9 +16,15 @@ const MARKDOWN_DEMO = `# My first note
 
 > A blockquote for important ideas.`;
 
-const INSTALL_GIFS = {
-  safari: "/tutorials/ios/pwa/safari-pwa-install-tuto-en.gif",
-  chrome: "/tutorials/chrome/pwa/chrome-pwa-install-tuto-en.gif",
+const INSTALL_VIDEOS = {
+  safari: {
+    webm: "/tutorials/ios/pwa/safari-pwa-install-tuto-en.webm",
+    mp4: "/tutorials/ios/pwa/safari-pwa-install-tuto-en.mp4",
+  },
+  chrome: {
+    webm: "/tutorials/chrome/pwa/chrome-pwa-install-tuto-en.webm",
+    mp4: "/tutorials/chrome/pwa/chrome-pwa-install-tuto-en.mp4",
+  },
 };
 
 const STEP_IDS = ["welcome", "markdown", "vaults", "note", "install", "done"];
@@ -253,12 +259,18 @@ function OnboardingWizard({ open, onClose, onOpenTutorial, onCreateNote, onCreat
               </button>
             </div>
 
-            <img
+            <video
               key={browser}
-              src={INSTALL_GIFS[browser]}
-              alt={`How to install notefleex on ${browser === "safari" ? "Safari" : "Chrome"} (iOS)`}
               className="ob-install-gif"
-            />
+              autoPlay
+              loop
+              muted
+              playsInline
+              aria-label={`How to install notefleex on ${browser === "safari" ? "Safari" : "Chrome"} (iOS)`}
+            >
+              <source src={INSTALL_VIDEOS[browser].webm} type="video/webm" />
+              <source src={INSTALL_VIDEOS[browser].mp4} type="video/mp4" />
+            </video>
 
             <div className="ob-nav">
               <Button onClick={back}>← Back</Button>
