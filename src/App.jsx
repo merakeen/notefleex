@@ -331,7 +331,7 @@ function App() {
   }, [notes, activeVaultId, vaults, unlockedVaultKeys]);
 
   useEffect(() => {
-    if (!notes.some((note) => note.id === activeNoteId)) {
+    if (activeNoteId !== null && !notes.some((note) => note.id === activeNoteId)) {
       const firstActive = notes.find((note) => !note.archived);
       setActiveNoteId(firstActive?.id ?? notes[0]?.id ?? null);
     }
