@@ -826,9 +826,23 @@
 }
 
 /* Single column on narrow viewports */
+/* Mobile back bar — hidden on desktop */
+.mobile-back-bar {
+  display: none;
+}
+
 @media (max-width: 1080px) {
   .workspace-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Show only one pane at a time on mobile */
+  .workspace-grid.mobile-note-open .notes-pane {
+    display: none;
+  }
+
+  .workspace-grid:not(.mobile-note-open) .editor-pane {
+    display: none;
   }
 
   .notes-pane {
@@ -841,6 +855,15 @@
 
   .note-list {
     max-height: 55vh;
+  }
+
+  /* Back bar visible on mobile when a note is open */
+  .mobile-back-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--nf-border);
   }
 }
 
@@ -1265,5 +1288,39 @@
 
   .ob-install-gif {
     max-height: 320px;
+  }
+}
+
+@media (max-width: 420px) {
+  /* Tighter card padding on very narrow screens */
+  .ob-card {
+    padding: 16px;
+  }
+
+  /* Overlay padding reduction so card uses full width */
+  .ob-overlay {
+    padding: 10px;
+  }
+
+  /* Nav row: wrap so long button groups don't clip */
+  .ob-nav {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ob-nav-group {
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  /* Primary CTA takes full row on its own when it wraps */
+  .ob-nav-group .ant-btn-primary {
+    flex: 1;
+  }
+
+  /* Browser toggle pills: equal width, full row */
+  .ob-browser-toggle {
+    width: 100%;
   }
 }

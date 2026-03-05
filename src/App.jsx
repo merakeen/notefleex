@@ -15,6 +15,7 @@ import {
   message,
 } from "antd";
 import {
+  ArrowLeftOutlined,
   BookOutlined,
   CompassOutlined,
   DeleteOutlined,
@@ -743,7 +744,7 @@ function App() {
           />
         </header>
 
-        <section className="workspace-grid">
+        <section className={`workspace-grid${activeNoteId ? " mobile-note-open" : ""}`}>
           <aside className="notes-pane">
             <div className="notes-pane-header">
               <Typography.Title level={4}>Notes</Typography.Title>
@@ -865,6 +866,20 @@ function App() {
           </aside>
 
           <main className="editor-pane">
+            {activeNote && (
+              <div className="mobile-back-bar">
+                <Button
+                  type="text"
+                  icon={<ArrowLeftOutlined />}
+                  onClick={() => {
+                    setActiveNoteId(null);
+                    setIsEditing(false);
+                  }}
+                >
+                  All notes
+                </Button>
+              </div>
+            )}
             {activeNote ? (
               isEditing ? (
                 <>
