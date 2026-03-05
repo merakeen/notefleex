@@ -16,7 +16,49 @@ const MARKDOWN_DEMO = `# My first note
 
 > A blockquote for important ideas.`;
 
-const STEP_IDS = ["welcome", "markdown", "vaults", "note", "done"];
+const SAFARI_STEPS = [
+  {
+    img: "/tutorials/ios/pwa/safari-step-1.PNG",
+    caption: "Open notefleex in Safari on your iPhone.",
+  },
+  {
+    img: "/tutorials/ios/pwa/safari-step-2.PNG",
+    caption: "Tap the Share button (↑) at the bottom of the screen.",
+  },
+  {
+    img: "/tutorials/ios/pwa/safari-step-3.PNG",
+    caption: "Scroll down in the share sheet.",
+  },
+  {
+    img: "/tutorials/ios/pwa/safari-step-4.PNG",
+    caption: 'Tap "Add to Home Screen".',
+  },
+  {
+    img: "/tutorials/ios/pwa/safari-step-5.PNG",
+    caption: 'Tap "Add" — notefleex appears on your home screen!',
+  },
+];
+
+const CHROME_STEPS = [
+  {
+    img: "/tutorials/chrome/pwa/chrome-step-1.PNG",
+    caption: "Open notefleex in Chrome on your iPhone.",
+  },
+  {
+    img: "/tutorials/chrome/pwa/chrome-step-2.PNG",
+    caption: "Tap the Share button at the bottom of the screen.",
+  },
+  {
+    img: "/tutorials/chrome/pwa/chrome-step-3.PNG",
+    caption: 'Tap "Add to Home Screen" in the share sheet.',
+  },
+  {
+    img: "/tutorials/chrome/pwa/chrome-step-4.PNG",
+    caption: 'Tap "Add" — notefleex is now on your home screen!',
+  },
+];
+
+const STEP_IDS = ["welcome", "markdown", "vaults", "note", "install", "done"];
 
 function StepDots({ current, total }) {
   return (
@@ -28,9 +70,81 @@ function StepDots({ current, total }) {
   );
 }
 
+function ScreenshotCarousel({ steps }) {
+  const [lightbox, setLightbox] = useState(null);
+
+  return (
+    <>
+      <div className="ob-screenshots">
+        {steps.map((step, i) => (
+          <button
+            key={i}
+            className="ob-screenshot-card"
+            onClick={() => setLightbox(i)}
+            aria-label={`Step ${i + 1}: ${step.caption}`}
+          >
+            <div className="ob-screenshot-num">{i + 1}</div>
+            <img
+              src={step.img}
+              alt={`Step ${i + 1}`}
+              className="ob-screenshot-img"
+              loading="lazy"
+            />
+            <p className="ob-screenshot-caption">{step.caption}</p>
+          </button>
+        ))}
+      </div>
+
+      {lightbox !== null && (
+        <div
+          className="ob-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Step ${lightbox + 1} enlarged`}
+          onClick={() => setLightbox(null)}
+        >
+          <div className="ob-lightbox-inner" onClick={(e) => e.stopPropagation()}>
+            <div className="ob-lightbox-header">
+              <span className="ob-lightbox-label">
+                Step {lightbox + 1} / {steps.length}
+              </span>
+              <div className="ob-lightbox-nav">
+                <Button
+                  size="small"
+                  disabled={lightbox === 0}
+                  onClick={() => setLightbox((l) => l - 1)}
+                >
+                  ←
+                </Button>
+                <Button
+                  size="small"
+                  disabled={lightbox === steps.length - 1}
+                  onClick={() => setLightbox((l) => l + 1)}
+                >
+                  →
+                </Button>
+                <Button size="small" onClick={() => setLightbox(null)}>
+                  ✕
+                </Button>
+              </div>
+            </div>
+            <img
+              src={steps[lightbox].img}
+              alt={`Step ${lightbox + 1}`}
+              className="ob-lightbox-img"
+            />
+            <p className="ob-lightbox-caption">{steps[lightbox].caption}</p>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function OnboardingWizard({ open, onClose, onOpenTutorial, onCreateNote, onCreateVault }) {
   const [step, setStep] = useState(0);
   const [demoText, setDemoText] = useState(MARKDOWN_DEMO);
+  const [browser, setBrowser] = useState("safari");
 
   const total = STEP_IDS.length;
   const currentStepId = STEP_IDS[step];
@@ -218,6 +332,46 @@ function OnboardingWizard({ open, onClose, onOpenTutorial, onCreateNote, onCreat
                   Create my first note
                 </Button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {currentStepId === "install" && (
+          <div className="ob-step">
+            <Typography.Title level={3} className="ob-title">
+              Add to your home screen
+            </Typography.Title>
+            <Typography.Paragraph className="ob-body">
+              notefleex works like a native app on your phone — no App Store needed. Install it in
+              seconds and access your notes from your home screen, even offline.
+            </Typography.Paragraph>
+
+            <div className="ob-browser-toggle">
+              <button
+                className={`ob-browser-btn${browser === "safari" ? " ob-browser-btn--active" : ""}`}
+                onClick={() => setBrowser("safari")}
+              >
+                Safari (iOS)
+              </button>
+              <button
+                className={`ob-browser-btn${browser === "chrome" ? " ob-browser-btn--active" : ""}`}
+                onClick={() => setBrowser("chrome")}
+              >
+                Chrome (iOS)
+              </button>
+            </div>
+
+            <ScreenshotCarousel steps={browser === "safari" ? SAFARI_STEPS : CHROME_STEPS} />
+
+            <Typography.Paragraph className="ob-body ob-body--muted" style={{ marginTop: 8 }}>
+              Tap any screenshot to enlarge it.
+            </Typography.Paragraph>
+
+            <div className="ob-nav">
+              <Button onClick={back}>← Back</Button>
+              <Button type="primary" onClick={next}>
+                Next →
+              </Button>
             </div>
           </div>
         )}
