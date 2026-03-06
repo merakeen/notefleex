@@ -724,14 +724,14 @@ function App() {
               Get started
             </Button>
             <Button size="large" icon={<DownloadOutlined />} onClick={exportNotes}>
-              Export as JSON backup file
+              Export backup file
             </Button>
             <Button
               size="large"
               icon={<UploadOutlined />}
               onClick={() => fileInputRef.current?.click()}
             >
-              Import JSON backup file
+              Import backup file
             </Button>
           </Space>
 
